@@ -11,7 +11,7 @@ PixeneOS is a `shell` script designed to patch GrapheneOS OTA (Over The Air) ima
 - [Magisk](https://github.com/pixincreate/Magisk)
 - [MSD](https://github.com/chenxiaolong/MSD)
 - [OEMUnlockOnBoot](https://github.com/chenxiaolong/OEMUnlockOnBoot)
-- [AlterInstaller](https://github.com/chenxiaolong/AlterInstalle)
+- [AlterInstaller](https://github.com/chenxiaolong/AlterInstaller)
 
 > [!NOTE]
 >
@@ -62,9 +62,18 @@ Reading the [AVBRoot docs](https://github.com/chenxiaolong/AVBRoot) is essential
 1. Ensure the device has an unpatched version of GrapheneOS installed. The version must match the one from PixeneOS. It is important to make sure that the version installed matches the version on PixeneOS
 2. Start with a version before the latest to ensure OTA functionality.
 
-> [!IMPORTANT] > `Factory image` and `OTA image` are different. AVBRoot is meant to deal with **OTA images**. So does PixeneOS.
+> [!IMPORTANT]
+>
+> `Factory image` and `OTA image` are different. AVBRoot is meant to deal with **OTA images**. So does PixeneOS.
 
 ### Detailed Instructions
+
+> [!IMPORTANT]
+> In case you run into an issue that throws `Device is corrupt. It can't be trusted` soon after first install, try sideloading the OTA once before proceeding with flashing the custom AVB public key. This suggestion is based on the experience of users who faced this issue. See [#89](https://github.com/schnatterer/rooted-graphene/issues/89).
+> Also, check the FAQ section for more information on [this](https://github.com/pixincreate/PixeneOS/blob/main/docs/FAQ.md#im-getting-an-error-on-boot-saying-device-is-corrupt-it-cant-be-trusted-what-can-i-do-what-are-my-options) issue.
+
+> [!CAUTION]
+> If flashing fails, [**do not switch the slot**](https://github.com/schnatterer/rooted-graphene/issues/96#issuecomment-3128121844).
 
 #### Web Install
 
@@ -150,19 +159,13 @@ It is easier to use the web installer to flash GrapheneOS. However, it is recomm
    fastboot flash avb_custom_key /path/to/avb_pkmd.bin
    ```
 
-5. **[Optional]** Before locking the bootloader, reboot into Android to confirm proper signing.
-
-   Install the Magisk or KernelSU app and run:
-
-   ```shell
-   adb shell su -c 'dmesg | grep libfs_avb'
-   ```
-
-   If AVB is working, you should see:
-
-   ```shell
-   init: [libfs_avb]Returning avb_handle with status: Success
-   ```
+5. Sideload the OTA (This helps avoid or reduce the possibility of running into the `Device is corrupt. It can't be trusted` error).
+   - Run `fastboot reboot recovery` to get into recovery mode
+   - An Android icon lying down with the text `No command` should be visible on the screen
+   - Hold the power button and press the volume up button a single time to get into the recovery UI
+   - Using the volume buttons, navigate to `Apply update from ADB` and select it with the power button
+   - As the recovery prompt says, use `adb sideload /path/to/ota.zip.patched` to sideload the patched OTA
+   - After the sideload completes, select 'Reboot to bootloader'
 
 6. Reboot into fastboot and lock the bootloader. This will trigger a data wipe.
 
@@ -172,7 +175,9 @@ It is easier to use the web installer to flash GrapheneOS. However, it is recomm
 
    Confirm by pressing volume down and then power. Then reboot.
 
-   > [!CAUTION] > **Do not uncheck `OEM unlocking`!**
+> [!CAUTION]
+>
+> **Do not uncheck `OEM unlocking`!**
 
 7. For future updates, see the [updates section](#updates).
 
@@ -249,8 +254,8 @@ PixeneOS can be run on your local machine. A Linux based machine is preferred.
 
 2. Modify `env.toml` to set environment variables (your device model, AVBRoot architecture, GrapheneOS update channel and etc.,)
 
-   > [!IMPORTANT]
-   > Make sure that `env.toml` file exist in root of the project.
+> [!IMPORTANT]
+> Make sure that `env.toml` file exist in root of the project.
 
 3. Run the program end-to-end:
 
@@ -351,6 +356,10 @@ To know more about the projects used in this repository, refer to the following 
 - [MSD](https://github.com/chenxiaolong/MSD)
 - [OEMUnlockOnBoot](https://github.com/chenxiaolong/OEMUnlockOnBoot)
 - [Rooted Graphene](https://github.com/schnatterer/rooted-graphene)
+
+## FAQs
+
+Check the [FAQs](docs/FAQ.md) to learn about common issues faced by users and their solutions.
 
 ## License
 

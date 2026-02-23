@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Contains the functions to fetch the required files. In short, this takes care of downloading the OTA, Magisk, and other dependencies.
 
 source src/declarations.sh
@@ -11,8 +13,7 @@ function get_latest_version() {
       grep -E 'refs/tags/' |
       sed 's/refs\/tags\///' |
       sort -V |
-      tail -n1 |
-      sed 's/canary-//'
+      tail -n1
   )
 
   if [[ GRAPHENEOS[UPDATE_TYPE] == "install" ]]; then
@@ -64,13 +65,13 @@ function get() {
     fi
 
     # Download the files directly to modules directory
-    curl -sL "${url}" --output "${WORKDIR}/modules/${filename}.${suffix}"
+    curl -sLf "${url}" --output "${WORKDIR}/modules/${filename}.${suffix}"
 
     if [[ "${filename}" != "my-avbroot-setup" ]]; then
       # Download signatures
       if [ -n "${signature_url}" ]; then
         echo "Downloading signature for \`${filename}\`..."
-        curl -sL "${signature_url}" --output "${WORKDIR}/signatures/${filename}.zip.sig"
+        curl -sLf "${signature_url}" --output "${WORKDIR}/signatures/${filename}.zip.sig"
       fi
 
       # afsr, avbroot and custota-tool are binaries that need to be extracted and granted permissions
@@ -92,14 +93,14 @@ function download_ota() {
   local ota="${WORKDIR}/${GRAPHENEOS[OTA_TARGET]}.zip"
 
   # Set the URLs if not set
-  if [ ! -z "${GRAPHENEOS[OTA_URL]}" ]; then
+  if [ -n "${GRAPHENEOS[OTA_URL]}" ]; then
     get_latest_version
   fi
 
   # Download if not downloaded already
   if [ ! -f "${ota}" ]; then
     echo -e "Downloading OTA from: ${GRAPHENEOS[OTA_URL]}...\nPlease be patient while the download happens."
-    curl -sL "${GRAPHENEOS[OTA_URL]}" --output ${ota}
+    curl -sL "${GRAPHENEOS[OTA_URL]}" --output "${ota}"
     echo -e "OTA downloaded to: \`${ota}\`\n"
   else
     echo -e "OTA is already downloaded in: \`${ota}\`\n"
